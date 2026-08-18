@@ -192,9 +192,9 @@ void insertbyPosition(int pos, int x)
     }
 
     node* p = head;
-    int count = 0;
+    int count = 1;
 
-    while(p != nullptr && count <= pos - 1)
+    while(p != nullptr && count < pos - 1)
     {
         p = p->next;
         count++;
@@ -252,9 +252,9 @@ void deletebyPosition(int pos)
     }
 
     node* p = head;
-    int count = 0;
+    int count = 1;
 
-    while(p != nullptr && count <= pos - 1)
+    while(p != nullptr && count < pos - 1)
     {
         p = p->next;
         count++;

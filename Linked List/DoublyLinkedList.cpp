@@ -4,6 +4,7 @@ using namespace std;
 struct node
 {
     int data;
+    node* prev;
     node* next;
 };
 node* head = nullptr;
@@ -12,8 +13,19 @@ void insertFirst(int x)
 {
     node* t = new node;
     t -> data = x;
-    t -> next = head;
-    head = t;
+    if(head == nullptr)
+    {
+        head = t;
+        t->next = nullptr;
+        t->prev = nullptr;
+    }
+    else
+    {
+        t->next = head;
+        t->prev = nullptr;
+        head->prev = t;
+        head = t;
+    }
 }
 void insertLast(int x)
 {
@@ -21,74 +33,182 @@ void insertLast(int x)
     t -> data = x;
     if(head == nullptr)
     {
-        t -> next = nullptr;
         head = t;
+        t->prev = nullptr;
+        t->next = nullptr;
     }
     else
     {
         node* p = head;
         while(p->next != nullptr)
         {
-            p = p -> next;
+            p = p->next;
         }
-        p -> next = t;
-        t -> next = nullptr;
+        p->next = t;
+        t->prev = p;
+        t->next = nullptr;
     }
 }
-void printing()
+
+void insertbyPosition(int pos, int x)
 {
-    if(head == nullptr)
+    node* t = new node;
+    t -> data = x;
+
+    node* p = head;
+    int countt = 1;
+    while(p != nullptr && countt != pos-1)
     {
-        cout<< " List is empty " << endl;
+        p = p->next;
+        countt++;
     }
-    else
+    if(p==nullptr && pos<= 1)
     {
-        node* p = head;
-        while(p != nullptr)
-        {
-            cout<< p -> data << " ";
-            p = p -> next;
-        }
-        cout<<endl;
+        cout<< "Position is out of index";
+        return;
     }
+    t->next = p->next;
+    p->next->prev = t;
+    p->next = t;
+    t->prev = p;
 
 }
+void insertbyValue(int prevValue,int x)
+{
+    node* t = new node;
+    t->data = x;
+
+    node* p = head;
+    while(p!= nullptr)
+    {
+        if(p->data == prevValue)
+        {
+            t->prev = p;
+            t->next = p->next;
+            if(p->next != nullptr)
+                p->next->prev = t;
+            p->next = t;
+            return;
+        }
+        p = p->next;
+    }
+}
+
 void deleteFirst()
 {
     if(head == nullptr)
     {
-        cout<< " List is empty, NOTHING can be deleted." << endl;
+        cout<< "List is empty"<<endl;
+        return;
     }
-    else
-    {
-        node* p = head;
-        head = head -> next;
-        delete p;
-    }
+    node* p = head;
+    head = head->next;
+    if(head != nullptr)
+        head->prev = nullptr;
+    p->next = nullptr;
+    delete p;
 }
+
 void deleteLast()
 {
     if(head == nullptr)
     {
-        cout<< " List is empty, NOTHING can be deleted." << endl;
+        cout<< "List is empty"<<endl;
+        return;
     }
-    else if(head->next == nullptr)
+    if(head->next == nullptr)
     {
         delete head;
         head = nullptr;
+        return;
     }
-    else
+    node* p = head;
+    while(p->next->next != nullptr)
     {
-        node* p = head;
-        node* p1;
-        while(p -> next != nullptr)
-        {
-            p1 = p;
-            p = p -> next;
-        }
-        p1 -> next = nullptr;
-        delete p;
+        p = p->next;
     }
+    node* p1 = p->next;
+    p->next = nullptr;
+    delete p1;
+}
+void deletebyPosition(int pos)
+{
+    node* p = head;
+    int countt = 1;
+    while(countt!= pos -1 && p != nullptr)
+    {
+        p = p->next;
+        countt++;
+    }
+    if(pos<=1 && p==nullptr)
+    {
+        cout<< "Invalid position"<<endl;
+        return;
+    }
+    node* p1 = p->next;
+    p->next = p1->next;
+    if(p->next != nullptr)
+        p1->next->prev = p;
+    delete p1;
+}
+
+void deletebyValue(int val)
+{
+    node* p = head;
+    if(head== nullptr)
+    {
+        cout << "Invalid position" << endl;
+    }
+    while(p != nullptr)
+    {
+        if(p->data == val)
+        {
+            if(p->prev == nullptr)
+            {
+                deleteFirst();
+                return;
+            }
+
+            p->prev->next = p->next;
+            if(p->next != nullptr)
+                p->next->prev = p->prev;
+            delete p;
+            return;
+        }
+        p = p->next;
+    }
+}
+
+void printingF()
+{
+    node* p = head;
+    while(p != nullptr)
+    {
+        cout<< p->data<< " ";
+        p = p->next;
+    }
+}
+void printingB()
+{
+    node* p = head;
+    while(p->next!=nullptr)
+    {
+        p = p->next;
+    }
+    while(p!=nullptr)
+    {
+        cout<< p->data << " ";
+        p = p->prev;
+    }
+}
+void reversePrint(node* p)
+{
+    if(p == nullptr)
+    {
+        return;
+    }
+    reversePrint(p->next);
+    cout<< p->data << " ";
 }
 
 void last_node()
@@ -96,37 +216,31 @@ void last_node()
     if(head == nullptr)
     {
         cout<< "List is empty. "<< endl;
+        return;
     }
-    else
+    node* p = head;
+    while(p->next != nullptr)
     {
-        node* p = head;
-        while( p -> next != nullptr)
-        {
-            p = p->next;
-        }
-        cout << p -> data;
+        p = p->next;
     }
+    cout<< p->data;
 }
+
 void previous_of_the_last_node()
 {
     if(head == nullptr)
     {
-        cout<< "List is empty. " << endl;
+        cout<< "List is empty. "<< endl;
+        return;
     }
-    else if(head->next == nullptr)
+    node* p = head;
+    while(p->next != nullptr)
     {
-        cout<< "Previous node of last node does not exist. " << endl;
+        p = p->next;
     }
-    else
-    {
-        node* p = head;
-        while(p->next->next != nullptr)
-        {
-            p = p-> next;
-        }
-        cout<< p-> data <<endl;
-    }
+    cout<< p->prev->data;
 }
+
 void listSize()
 {
     node* p = head;
@@ -137,27 +251,6 @@ void listSize()
         p = p -> next;
     }
     cout << countt << endl;
-}
-
-void reversePrint(node* p)
-{
-    if(p == nullptr)
-    {
-        return;
-    }
-
-    reversePrint(p->next);
-    cout << p->data << " ";
-}
-void reversePrint()
-{
-    if(head == nullptr)
-    {
-        cout<< "ERROR! List is empty." << endl;
-        return;
-    }
-    reversePrint(head);
-    cout << endl;
 }
 
 void searching(int x)
@@ -183,118 +276,6 @@ void searching(int x)
         cout << "Element not found." << endl;
     }
 }
-void insertbyPosition(int pos, int x)
-{
-    if(pos <= 1)
-    {
-        cout << "Invalid position." << endl;
-        return;
-    }
-
-    node* p = head;
-    int count = 0;
-
-    while(p != nullptr && count <= pos - 1)
-    {
-        p = p->next;
-        count++;
-    }
-
-    if(p == nullptr)
-    {
-        cout << "Position out of range." << endl;
-        return;
-    }
-
-    node* t = new node;
-    t->data = x;
-    t->next = p->next;
-    p->next = t;
-}
-void insertbyValue(int value, int x)
-{
-    if(head == nullptr)
-    {
-        cout << "List is empty." << endl;
-        return;
-    }
-
-    node* p = head;
-
-    while(p != nullptr)
-    {
-        if(p->data == value)
-        {
-            node* t = new node;
-            t->data = x;
-            t->next = p->next;
-            p->next = t;
-            return;
-        }
-
-        p = p->next;
-    }
-
-    cout << "Invalid" << endl;
-}
-void deletebyPosition(int pos)
-{
-    if(head == nullptr)
-    {
-        cout << "List is empty." << endl;
-        return;
-    }
-
-    if(pos <= 1)
-    {
-        cout << "Invalid position." << endl;
-        return;
-    }
-
-    node* p = head;
-    int count = 0;
-
-    while(p != nullptr && count <= pos - 1)
-    {
-        p = p->next;
-        count++;
-    }
-
-    if(p == nullptr || p->next == nullptr)
-    {
-        cout << "Position out of range." << endl;
-        return;
-    }
-
-    node* temp = p->next;
-    p->next = temp->next;
-    delete temp;
-}
-void deletebyValue(int value)
-{
-    if(head == nullptr)
-    {
-        cout << "List is empty." << endl;
-        return;
-    }
-
-    node* p = head;
-
-    while(p->next != nullptr)
-    {
-        if(p->next->data == value)
-        {
-            node* temp = p->next;
-            p->next = temp->next;
-            delete temp;
-            return;
-        }
-
-        p = p->next;
-    }
-
-    cout << "Value not found." << endl;
-}
 int main(void)
 {
     printf("1.Insert an element at the beginning of linked list.\n");
@@ -305,12 +286,13 @@ int main(void)
     printf("6.Delete an element from end.\n");
     printf("7.Delete an element by position (anywhere between two nodes).\n");
     printf("8.Delete an element by value(anywhere between two nodes).\n");
-    printf("9.Print the linked list.\n");
+    printf("9.Print the linked list from start.\n");
     printf("10.Print the linked list in reverse order.\n");
     printf("11.Print the last node.\n");
     printf("12.Print the previous node of the last node.\n");
     printf("13.Print the list size.\n");
     printf("14.Search an element.\n");
+    printf("15.Print the linked list backward.\n");
     printf("0.Exit\n");
 
     int i, data;
@@ -374,11 +356,11 @@ int main(void)
         }
         else if (i == 9)
         {
-            printing();
+            printingF();
         }
         else if (i == 10)
         {
-            reversePrint();
+            reversePrint(head);
         }
         else if (i == 11)
         {
@@ -398,6 +380,10 @@ int main(void)
             cout << "Enter the element you want to search : ";
             cin >> x;
             searching(x);
+        }
+        else if(i == 15)
+        {
+            printingB();
         }
         else if (i == 0)
         {
